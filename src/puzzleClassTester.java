@@ -8,6 +8,8 @@ public class puzzleClassTester {
 		puz.printState(puz.getState());
 		puz.move("right");
 		puz.printState(puz.getState());
+		puz.move("down");
+		puz.printState(puz.getState());
 	}
 
 }

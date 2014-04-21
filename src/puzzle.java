@@ -97,7 +97,6 @@ public class puzzle {
 	public boolean move(String str){
 		if (str.equals("up")){
 			if (!compareArray(moveUp(),state)){
-				System.out.println("in");
 				state = moveUp();
 				generateTile();
 				return true;
@@ -141,7 +140,6 @@ public class puzzle {
 	public boolean move(String str, int x, int y, int v){
 		if (str.equals("up")){
 			if (!compareArray(moveUp(),state)){
-				System.out.println("in");
 				state = moveUp();
 				generateTile(x,y,v);
 				return true;
@@ -183,7 +181,7 @@ public class puzzle {
 		}
 	}
 	public int[][] moveUp(){ 
-		int[][] stated = this.state.clone();
+		int[][] stated = copy(state);
 		for (int i = 0; i < 4; i++){
 			for (int j = 0; j < 4; j++){
 				movePiece: for (int k = i-1; k >= 0; k--){
@@ -205,10 +203,11 @@ public class puzzle {
 				}
 			}
 		}
+
 		return stated;
 	}
 	public int[][] moveDown(){
-		int[][] stated = this.state.clone();
+		int[][] stated = copy(state);
 		for (int i = 3; i >= 0; i--){
 			for (int j = 0; j < 4; j++){
 				movePiece: for (int k = i+1; k <= 3; k++){
@@ -222,7 +221,7 @@ public class puzzle {
 					}
 
 				}
-				for (int l = 3; l <= i+1; l--){
+				for (int l = 3; l >= i+1; l--){
 					if (stated[l][j]==0){
 						stated[l][j] = stated[i][j];
 						stated[i][j] = 0;
@@ -234,7 +233,7 @@ public class puzzle {
 		return stated;
 	}
 	public int[][] moveLeft(){
-		int[][] stated = this.state.clone();
+		int[][] stated = copy(state);
 		for (int j = 0; j < 4; j++){
 			for (int i = 0; i < 4; i++){
 				movePiece: for (int k = j-1; k >= 0; k--){
@@ -247,7 +246,7 @@ public class puzzle {
 						break movePiece;
 					}
 				}
-			for (int l = 0; l <= i-1; l++){
+			for (int l = 0; l <= j-1; l++){
 				if (stated[i][l]==0){
 					stated[i][l] = stated[i][j];
 					stated[i][j] = 0;
@@ -260,7 +259,7 @@ public class puzzle {
 	}
 	public int[][] moveRight(){
 
-		int[][] stated = this.state.clone();
+		int[][] stated = copy(state);
 		for (int j = 3; j >= 0; j--){
 			for (int i = 0; i < 4; i++){
 				movePiece: for (int k = j+1; k <= 3; k++){
@@ -273,13 +272,13 @@ public class puzzle {
 						break movePiece;
 					}
 				}
-			for (int l = 3; l >= i+1; l--){
-				if (stated[i][l]==0){
-					stated[i][l] = stated[i][j];
-					stated[i][j] = 0;
-					break;
+				for (int l = 3; l >= j+1; l--){
+					if (stated[i][l]==0){
+						stated[i][l] = stated[i][j];
+						stated[i][j] = 0;
+						break;
+					}
 				}
-			}
 			}
 		}
 		return stated;
@@ -301,5 +300,14 @@ public class puzzle {
 	}
 	public void generateTile(int x, int y, int v){
 		state[x][y] = v;
+	}
+	public int[][] copy(int[][] x){
+		int[][] temp = new int[4][4];
+		for (int i= 0; i<4; i++){
+			for (int j = 0; j < 4; j++){
+				temp[i][j] = x[i][j];
+			}
+		}
+		return temp;
 	}
 }
