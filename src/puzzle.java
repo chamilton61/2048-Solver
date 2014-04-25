@@ -84,13 +84,8 @@ public class puzzle {
 				}
 			}
 		}
-		if (state != moveUp())
-			return false;
-		if (state != moveDown())
-			return false;
-		if (state != moveLeft())
-			return false;
-		if (state != moveRight())
+
+		if ( !compareArray(state, moveUp()) || !compareArray(state, moveLeft()) || !compareArray(state, moveRight()) || !compareArray(state, moveDown()))
 			return false;
 		return true;
 	}

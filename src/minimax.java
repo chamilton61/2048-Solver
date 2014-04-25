@@ -17,12 +17,10 @@ public class minimax {
 				break;
 			}
 			if (Puzzle.checkLose()){
-				System.out.println("LOSTTttttttttttttttttttttt");
 				message = "LOSE";
 				break;
 			}
 			String move = getMove(Puzzle.getState());
-			System.out.println("Stuck here?" + " " + move);
 			if(move == "UP")
 				Puzzle.move("up");			
 			if(move == "LEFT")
@@ -37,13 +35,6 @@ public class minimax {
 
 		}
 		System.out.println("You " + message + ".");
-	}
-
-	public void testRun(){
-		printState(rotate(Puzzle.getState(), 0));
-		printState(rotate(Puzzle.getState(), 1));
-		printState(rotate(Puzzle.getState(), 2));
-		printState(rotate(Puzzle.getState(), 3));
 	}
 
 	private String getMove(int[][] state){
@@ -66,10 +57,14 @@ public class minimax {
 	}
 
 	private double value(int[][] state){
-		if(canMove(state))
-			return getOptimalMove(state);
-		else
+		if(!compareArray(pushUp(state), state)){
+			return getOptimalMove(pushUp(state));
+		}
+		else{
+			System.out.println("ASDF");
 			return 10000.0;
+		}
+			
 	}
 
 	private int getOptimalMove(int[][] state){
@@ -112,21 +107,6 @@ public class minimax {
 		}
 		return zeroes;
 	}
-	private boolean canMove(int[][] state){
-		boolean zero = false;
-		for(int i = 0; i<4; i++){
-			for(int j = 0; j<4; j++){
-				if(state[j][i] == 0)
-					zero = true;
-				else{
-					if(zero)
-						return true;
-				}
-			}
-			zero = false;
-		}
-		return false;
-	}
 
 	private int[][] rotate(int[][] state, int times){
 		int[][] rotate = new int[4][4];
@@ -156,39 +136,30 @@ public class minimax {
 		return state;
 	}
 
-	public int[][] copy(int[][] x){
-		int[][] temp = new int[4][4];
-		for (int i= 0; i<4; i++){
-			for (int j = 0; j < 4; j++){
-				temp[i][j] = x[i][j];
-			}
-		}
-		return temp;
-	}
-
 	public int[][] pushUp(int[][] state){
+		int[][] stated = copy(state);
 		for (int i = 0; i < 4; i++){
 			for (int j = 0; j < 4; j++){
 				movePiece: for (int k = i-1; k >= 0; k--){
-					if (state[k][j]!=state[i][j] && state[k][j]!= 0){
+					if (stated[k][j]!=stated[i][j] && stated[k][j]!= 0){
 						break movePiece;
 					}
-					if (state[k][j]==state[i][j]){
-						state[i][j]=0;
-						state[k][j]*=2;
+					if (stated[k][j]==stated[i][j]){
+						stated[i][j]=0;
+						stated[k][j]*=2;
 						break movePiece;
 					}
 				}
 				for (int l = 0; l <= i-1; l++){
-					if (state[l][j]==0){
-						state[l][j] = state[i][j];
-						state[i][j] = 0;
+					if (stated[l][j]==0){
+						stated[l][j] = stated[i][j];
+						stated[i][j] = 0;
 						break;
 					}
 				}
 			}
 		}
-		return state;
+		return stated;
 	}
 
 	public void printState(int[][] x){
@@ -206,5 +177,26 @@ public class minimax {
 			System.out.println();
 		}
 		System.out.println("---------");
+	}
+
+	public boolean compareArray(int[][] x, int[][] y){
+		for (int i = 0; i < x.length; i++){
+			for (int j = 0; j < x[i].length; j++){
+				if (x[i][j]!=y[i][j]){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	public int[][] copy(int[][] x){
+		int[][] temp = new int[4][4];
+		for (int i= 0; i<4; i++){
+			for (int j = 0; j < 4; j++){
+				temp[i][j] = x[i][j];
+			}
+		}
+		return temp;
 	}
 }
