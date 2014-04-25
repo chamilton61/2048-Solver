@@ -285,11 +285,11 @@ public class puzzle {
 	}
 	public void generateTile(){
 		Random rand = new Random();
-		int X2 = rand.nextInt(3);
-		int Y2 = rand.nextInt(3);
+		int X2 = rand.nextInt(4);
+		int Y2 = rand.nextInt(4);
 		while (state[X2][Y2] != 0){
-			X2 = rand.nextInt(3);
-			Y2 = rand.nextInt(3);
+			X2 = rand.nextInt(4);
+			Y2 = rand.nextInt(4);
 		}
 		if (rand.nextDouble() < .90){
 			state[X2][Y2] = 2;

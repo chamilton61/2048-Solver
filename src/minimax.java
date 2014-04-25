@@ -1,4 +1,5 @@
-
+import java.util.ArrayList;
+import java.awt.Point;
 
 public class minimax {
 	puzzle Puzzle;
@@ -9,29 +10,37 @@ public class minimax {
 
 	public void run(){
 		String message = "";
+		int moveNumber = 0;
 		while(true){
 			if(Puzzle.checkWin()){
 				message = "WIN";
 				break;
 			}
 			if (Puzzle.checkLose()){
+				System.out.println("LOSTTttttttttttttttttttttt");
 				message = "LOSE";
 				break;
 			}
 			String move = getMove(Puzzle.getState());
+			System.out.println("Stuck here?" + " " + move);
 			if(move == "UP")
-				Puzzle.moveUp();
+				Puzzle.move("up");			
 			if(move == "LEFT")
-				Puzzle.moveLeft();
+				Puzzle.move("left");
 			if(move == "DOWN")
-				Puzzle.moveDown();
+				Puzzle.move("down");
 			if(move == "RIGHT")
-				Puzzle.moveRight();
+				Puzzle.move("right");
+			System.out.println("Move: " + move + " Move Number: " + moveNumber);
+			Puzzle.printState(Puzzle.getState());
+			moveNumber++;
+
 		}
+		System.out.println("You " + message + ".");
 	}
 
 	public void testRun(){
-		printState(Puzzle.getState());
+		printState(rotate(Puzzle.getState(), 0));
 		printState(rotate(Puzzle.getState(), 1));
 		printState(rotate(Puzzle.getState(), 2));
 		printState(rotate(Puzzle.getState(), 3));
@@ -43,29 +52,80 @@ public class minimax {
 		double leftValue = value(rotate(state, 1));
 		double downValue = value(rotate(state, 2));
 		double rightValue = value(rotate(state, 3));
-		if ( leftValue > bestMove ){
+		if ( leftValue < bestMove ){
 			bestMove = leftValue;
 			move = "LEFT";
 		}
-		if ( downValue > bestMove ){
+		if ( downValue < bestMove ){
 			bestMove = downValue;
 			move = "DOWN";
 		}
-		if ( rightValue > bestMove )
+		if ( rightValue < bestMove )
 			move = "RIGHT";
 		return move;
 	}
 
 	private double value(int[][] state){
-		state = getOptimalMove(state);
-
-		return 0;
+		if(canMove(state))
+			return getOptimalMove(state);
+		else
+			return 10000.0;
 	}
 
-	private int[][] getOptimalMove(int[][] state){
+	private int getOptimalMove(int[][] state){
+		ArrayList<Point> zeroes = getZeroes(state);
+		int maxValue = -1;
+		int expectedValue = -1;
+		int column = -1;
+		for(int i = 0; i<4; i++){
+			for(int j = 3; j>=0; j--){
+				if(j == 0){
+					expectedValue = 3;
+					break;
+				}
+				if(state[i][j] != 0){
+					if(j == 3 || state[i][j] == 4 || state[i][j] == 2)
+						break;
+					else{
+						expectedValue += 3 - j;
+						expectedValue += (int) (Math.log(state[i][j])/Math.log(2));
+					}
+				}
 
+			}
+			// if(expectedValue > maxValue){
+			// 	column = i;
+			// 	maxValue = expectedValue;
+			// }
+		}
 
-		return state;
+		return expectedValue;
+	}
+
+	private ArrayList<Point> getZeroes(int[][] state){
+		ArrayList<Point> zeroes = new ArrayList<Point>();
+		for(int i = 0; i<4; i++){
+			for(int j = 0; j<4; j++){
+				if(state[i][j] == 0)
+					zeroes.add(new Point(i,j));
+			}
+		}
+		return zeroes;
+	}
+	private boolean canMove(int[][] state){
+		boolean zero = false;
+		for(int i = 0; i<4; i++){
+			for(int j = 0; j<4; j++){
+				if(state[j][i] == 0)
+					zero = true;
+				else{
+					if(zero)
+						return true;
+				}
+			}
+			zero = false;
+		}
+		return false;
 	}
 
 	private int[][] rotate(int[][] state, int times){
@@ -94,7 +154,6 @@ public class minimax {
 			state = copy(rotate);
 		}
 		return state;
-		//return pushUp(state);
 	}
 
 	public int[][] copy(int[][] x){
