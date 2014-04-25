@@ -30,12 +30,19 @@ public class minimax {
 		}
 	}
 
+	public void testRun(){
+		printState(Puzzle.getState());
+		printState(rotate(Puzzle.getState(), 1));
+		printState(rotate(Puzzle.getState(), 2));
+		printState(rotate(Puzzle.getState(), 3));
+	}
+
 	private String getMove(int[][] state){
 		String move = "UP";
 		double bestMove = value(state);
-		double leftValue = value(rotateLeft(state));
-		double downValue = value(rotateLeftTwice(state));
-		double rightValue = value(rotateRight(state));
+		double leftValue = value(rotate(state, 1));
+		double downValue = value(rotate(state, 2));
+		double rightValue = value(rotate(state, 3));
 		if ( leftValue > bestMove ){
 			bestMove = leftValue;
 			move = "LEFT";
@@ -50,56 +57,54 @@ public class minimax {
 	}
 
 	private double value(int[][] state){
+		state = getOptimalMove(state);
 
 		return 0;
 	}
 
-	private int[][] rotateLeft(int[][] state){
-		int[][] left = new int[3][3];
-		left[0][0] = state[0][2];
-		left[0][1] = state[1][2];
-		left[0][2] = state[2][2];
+	private int[][] getOptimalMove(int[][] state){
 
-		left[1][0] = state[0][1];
-		left[1][1] = state[1][1];
-		left[1][2] = state[2][1];
 
-		left[2][0] = state[0][0];
-		left[2][1] = state[1][0];
-		left[2][2] = state[2][0];
-		return pushUp(left);
+		return state;
 	}
 
-	private int[][] rotateLeftTwice(int[][] state){
-		int[][] upside = new int[3][3];
-		upside[0][0] = state[2][2];
-		upside[0][1] = state[2][1];
-		upside[0][2] = state[2][0];
+	private int[][] rotate(int[][] state, int times){
+		int[][] rotate = new int[4][4];
+		int temp = 0;
+		for(int i = 0; i < times; i++){
+			rotate[0][0] = state[3][0];
+			rotate[1][0] = state[3][1];
+			rotate[2][0] = state[3][2];
+			rotate[3][0] = state[3][3];
 
-		upside[1][0] = state[1][2];
-		upside[1][1] = state[1][1];
-		upside[1][2] = state[1][0];
+			rotate[0][1] = state[2][0];
+			rotate[1][1] = state[2][1];
+			rotate[2][1] = state[2][2];
+			rotate[3][1] = state[2][3];
 
-		upside[2][0] = state[0][2];
-		upside[2][1] = state[0][1];
-		upside[2][2] = state[0][0];
-		return pushUp(upside);
+			rotate[0][2] = state[1][0];
+			rotate[1][2] = state[1][1];
+			rotate[2][2] = state[1][2];
+			rotate[3][2] = state[1][3];
+
+			rotate[0][3] = state[0][0];
+			rotate[1][3] = state[0][1];
+			rotate[2][3] = state[0][2];
+			rotate[3][3] = state[0][3];
+			state = copy(rotate);
+		}
+		return state;
+		//return pushUp(state);
 	}
 
-	private int[][] rotateRight(int[][] state){
-		int[][] right = new int[3][3];
-		right[0][0] = state[2][0];
-		right[0][1] = state[1][0];
-		right[0][2] = state[0][0];
-
-		right[1][0] = state[2][1];
-		right[1][1] = state[1][1];
-		right[1][2] = state[0][1];
-
-		right[2][0] = state[2][2];
-		right[2][1] = state[1][2];
-		right[2][2] = state[0][2];
-		return pushUp(right);
+	public int[][] copy(int[][] x){
+		int[][] temp = new int[4][4];
+		for (int i= 0; i<4; i++){
+			for (int j = 0; j < 4; j++){
+				temp[i][j] = x[i][j];
+			}
+		}
+		return temp;
 	}
 
 	public int[][] pushUp(int[][] state){
@@ -124,8 +129,23 @@ public class minimax {
 				}
 			}
 		}
-
 		return state;
 	}
 
+	public void printState(int[][] x){
+		int[][] state = x.clone();
+		for (int i = 0; i < state.length; i++){
+			System.out.println("---------");
+			for (int j = 0; j < state.length; j++){
+				if (j==0){
+					System.out.print("|"+state[i][j]+"|");
+				}
+				else{
+					System.out.print(state[i][j]+"|");
+				}
+			}
+			System.out.println();
+		}
+		System.out.println("---------");
+	}
 }
