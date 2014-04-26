@@ -53,18 +53,28 @@ public class puzzle {
 	public void printState(int[][] x){
 		int[][] state = x.clone();
 		for (int i = 0; i < state.length; i++){
-			System.out.println("---------");
+			System.out.println("-----------------");
 			for (int j = 0; j < state.length; j++){
 				if (j==0){
-					System.out.print("|"+state[i][j]+"|");
+					if(state[i][j] < 10)
+						System.out.print("|"+state[i][j]+"  |");
+					else if(state[i][j] < 100)
+						System.out.print("|"+state[i][j]+" |");
+					else
+						System.out.print("|"+state[i][j]+"|");
 				}
 				else{
-					System.out.print(state[i][j]+"|");
+					if(state[i][j] < 10)
+						System.out.print(state[i][j]+"  |");
+					else if(state[i][j] < 100)
+						System.out.print(state[i][j]+" |");
+					else
+						System.out.print(state[i][j]+"|");
 				}
 			}
 			System.out.println();
 		}
-		System.out.println("---------");
+		System.out.println("-----------------");
 	}
 	public boolean compareArray(int[][] x, int[][] y){
 		for (int i = 0; i < x.length; i++){
@@ -84,7 +94,6 @@ public class puzzle {
 				}
 			}
 		}
-
 		if ( !compareArray(state, moveUp()) || !compareArray(state, moveLeft()) || !compareArray(state, moveRight()) || !compareArray(state, moveDown()))
 			return false;
 		return true;
