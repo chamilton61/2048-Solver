@@ -8,7 +8,7 @@ public class minimax {
 		this.Puzzle = Puzzle;
 	}	
 
-	public simpleData run(){
+	public endData run(){
 		String message = "";
 		int moveNumber = 0;
 		while(true){
@@ -20,7 +20,7 @@ public class minimax {
 				message = "LOSE";
 				break;
 			}
-			String move = getMove(Puzzle.getState());
+			String move = getMove(Puzzle.getState(), 4);
 			if(move == "UP")
 				Puzzle.move("up");			
 			if(move == "LEFT")
@@ -35,72 +35,104 @@ public class minimax {
 
 		}
 		System.out.println("You " + message + ".");
-		return new simpleData(moveNumber, new int[3][3], message);
+		return new endData(moveNumber, message);
 	}
 
-	private String getMove(int[][] state){
-		// simpleData best = new simpleData(10000, state, "");
-		// simpleData secondBest = new simpleData(10000, state, "");
+	private String getMove(int[][] state, int levels){
 		ArrayList<simpleData> states = new ArrayList<simpleData>();
-		for(int i = 0; i < 4; i++){
-			simpleData temp = value(rotate(state, i), i);
-			if(temp.getValue() != 10000){
-				states.add(temp);
-				// if(temp.getValue() < best.getValue()){
-				// 	if(best.getValue() != 10000)
-				// 		secondBest = best;
-				// 	best = temp;
-				// } else {
-				// 	if( temp.getValue() < secondBest.getValue())
-				// 		secondBest = temp;
-				// }
-			}
-		}
-		// int bestValue = calculateValue(best);
-		// int secondValue = 0;
-		// if(secondBest.getValue() != 10000)
-		// 	secondValue = calculateValue(secondBest);
-
-		// int bestValue = calculateGradient(best.getState());
-		// int secondValue = calculateGradient(secondBest.getState());
-		// int bestValue = calculateUnique(best.getState());
-		// int secondValue = calculateUnique(secondBest.getState());
-		// int bestValue = calculateBlankTiles(best.getState());
-		// int secondValue = calculateBlankTiles(secondBest.getState());
-
-		int bestt =0;
-		String move = "";
-		for(int i = 0; i<states.size(); i++){
-			// int temp = calculateBlankTiles(states.get(i).getState());
-			int bestMove = 0;
-			String selectedMove = "";
-			for(int j = 0; j<4; j++){
-				simpleData level2 = value(rotate(states.get(i).getState(), j), j);
-				if(level2.getValue() != 10000){
-					int curValue = calculateValue(level2);
-					if(bestMove < curValue){
-						bestMove = curValue;
-						selectedMove = level2.getMove();
-					}
+		int move = -1;
+		int fallback = 0;
+		int highest = 0;
+		int firstHighest = 0;
+		for(int i = 0; i<4; i++){
+			simpleData data = value(rotate(state, i), i);
+			if(data.getValue() != 10000){
+				if(data.getValue() > firstHighest){
+					fallback = i;
+					firstHighest = data.getValue();
 				}
-			}
-			if(bestMove >= bestt){
-				move = states.get(i).getMove();
-				bestt = bestMove;
-			}
-			// int temp = calculateValue(states.get(i));
-			// // int temp = calculateGradient(states.get(i).getState());
-			// // int temp = calculateUnique(states.get(i).getState());
-			// if(temp >= bestt){
-			// 	move = states.get(i).getMove();
-			// 	bestt = temp;
+				int[][] temp = data.getState();
+				int cur = getMoveValue(temp, levels);
+				if(cur > highest){
+					highest = cur;
+					move = i;
+				}
+			}	
 		}
-		return move;
-		
-		// if(bestValue > secondValue)
-		// 	return best.getMove();
-		// return secondBest.getMove();
+		if(highest == 0)
+			move = fallback;
+		if(move == 0)
+			return "UP";
+		if(move == 1)
+			return "LEFT";
+		if(move == 2)
+			return "DOWN";
+		if(move == 3)
+			return "RIGHT";
+		return "UP";
 	}
+
+	private int getMoveValue(int[][] state, int levels){
+		ArrayList<simpleData> states = new ArrayList<simpleData>();
+		for(int i = 0; i<4; i++){
+			simpleData temp = value(rotate(state, i), i);
+			if(temp.getValue() != 10000)
+				states.add(temp);
+		}
+		if(levels > 0){
+			int highest = 0;
+			for(int j = 0; j<states.size(); j++){
+				int ttemp = levels -1;
+				int temp = getMoveValue(states.get(j).getState(), ttemp);
+				if(temp >= highest)
+					highest = temp;
+			}
+			return highest;
+		}
+		return highest(states);
+	}
+
+	private int highest(ArrayList<simpleData> data){
+		int high = 0;
+		for(int i = 0; i<data.size(); i++){
+			int temp = data.get(i).getValue();
+			if(temp >= high){
+				high = temp;
+			}
+		}
+		return high;
+	}
+
+	// private String getMove(int[][] state){
+	// 	ArrayList<simpleData> states = new ArrayList<simpleData>();
+	// 	for(int i = 0; i < 4; i++){
+	// 		simpleData temp = value(rotate(state, i), i);
+	// 		if(temp.getValue() != 10000){
+	// 			states.add(temp);
+	// 		}
+	// 	}
+	// 	int bestt =0;
+	// 	String move = "";
+	// 	for(int i = 0; i<states.size(); i++){
+	// 		int bestMove = 0;
+	// 		String selectedMove = "";
+	// 		for(int j = 0; j<4; j++){
+	// 			simpleData level2 = value(rotate(states.get(i).getState(), j), j);
+	// 			if(level2.getValue() != 10000){
+	// 				int curValue = calculateValue(level2);
+	// 				if(bestMove < curValue){
+	// 					bestMove = curValue;
+	// 					selectedMove = level2.getMove();
+	// 				}
+	// 			}
+	// 		}
+	// 		if(bestMove >= bestt){
+	// 			move = states.get(i).getMove();
+	// 			bestt = bestMove;
+	// 		}
+	// 	}
+	// 	return move;
+	// }
 
 	private int calculateBlankTiles(int[][] state){
 		int overall = 0;
@@ -258,26 +290,17 @@ public class minimax {
 
 	// returns a data structure with the optimal move of the opponent put in the state set
 	private simpleData value(int[][] state, int direction){
-		String move = "";
-		if(direction == 0)
-			move = "UP";
-		if(direction == 1)
-			move = "LEFT";
-		if(direction == 2)
-			move = "DOWN";
-		if(direction == 3)
-			move = "RIGHT";
 		int[][] temp = pushUp(state);
 		if(!compareArray(temp, state)){
-			return getOptimalMove(temp, move);
+			return getOptimalMove(temp, direction);
 		}
 		else
-			return new simpleData(10000, state, "");
+			return new simpleData(10000, state, -1);
 			
 	}
 
 	// returns a modified version of the state set with the predicted best move the opponent can make
-	private simpleData getOptimalMove(int[][] state, String move){
+	private simpleData getOptimalMove(int[][] state, int move){
 		ArrayList<Point> zeroes = getZeroes(state);
 		int max = 0;
 		int type = 0;
