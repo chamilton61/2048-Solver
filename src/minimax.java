@@ -8,7 +8,7 @@ public class minimax {
 		this.Puzzle = Puzzle;
 	}	
 
-	public int run(){
+	public simpleData run(){
 		String message = "";
 		int moveNumber = 0;
 		while(true){
@@ -35,35 +35,139 @@ public class minimax {
 
 		}
 		System.out.println("You " + message + ".");
-		return moveNumber;
+		return new simpleData(moveNumber, new int[3][3], message);
 	}
 
 	private String getMove(int[][] state){
-		simpleData best = new simpleData(10000, state, "");
-		simpleData secondBest = new simpleData(10000, state, "");
+		// simpleData best = new simpleData(10000, state, "");
+		// simpleData secondBest = new simpleData(10000, state, "");
 		ArrayList<simpleData> states = new ArrayList<simpleData>();
 		for(int i = 0; i < 4; i++){
-			states.add(value(rotate(state, i), i));
-			if(states.get(i).getValue() < best.getValue()){
-				if(best.getValue() != 10000)
-					secondBest = best;
-				best = states.get(i);
-			} else {
-				if( states.get(i).getValue() < secondBest.getValue())
-					secondBest = states.get(i);
+			simpleData temp = value(rotate(state, i), i);
+			if(temp.getValue() != 10000){
+				states.add(temp);
+				// if(temp.getValue() < best.getValue()){
+				// 	if(best.getValue() != 10000)
+				// 		secondBest = best;
+				// 	best = temp;
+				// } else {
+				// 	if( temp.getValue() < secondBest.getValue())
+				// 		secondBest = temp;
+				// }
 			}
 		}
-		System.out.println("BEST: " + best.getMove() + " value: " + best.getValue());
-		System.out.println("SECOND: " + secondBest.getMove() + " value: " + secondBest.getValue());
-		if(secondBest.getValue() == 10000)
-			return best.getMove();
-		int bestValue = calculateValue(best);
-		int secondValue = calculateValue(secondBest);
-		if(bestValue > secondValue)
-			return best.getMove();
-		return secondBest.getMove();
+		// int bestValue = calculateValue(best);
+		// int secondValue = 0;
+		// if(secondBest.getValue() != 10000)
+		// 	secondValue = calculateValue(secondBest);
+
+		// int bestValue = calculateGradient(best.getState());
+		// int secondValue = calculateGradient(secondBest.getState());
+		// int bestValue = calculateUnique(best.getState());
+		// int secondValue = calculateUnique(secondBest.getState());
+		// int bestValue = calculateBlankTiles(best.getState());
+		// int secondValue = calculateBlankTiles(secondBest.getState());
+
+		int bestt =0;
+		String move = "";
+		for(int i = 0; i<states.size(); i++){
+			// int temp = calculateBlankTiles(states.get(i).getState());
+			int bestMove = 0;
+			String selectedMove = "";
+			for(int j = 0; j<4; j++){
+				simpleData level2 = value(rotate(states.get(i).getState(), j), j);
+				if(level2.getValue() != 10000){
+					int curValue = calculateValue(level2);
+					if(bestMove < curValue){
+						bestMove = curValue;
+						selectedMove = level2.getMove();
+					}
+				}
+			}
+			if(bestMove >= bestt){
+				move = states.get(i).getMove();
+				bestt = bestMove;
+			}
+			// int temp = calculateValue(states.get(i));
+			// // int temp = calculateGradient(states.get(i).getState());
+			// // int temp = calculateUnique(states.get(i).getState());
+			// if(temp >= bestt){
+			// 	move = states.get(i).getMove();
+			// 	bestt = temp;
+		}
+		return move;
+		
+		// if(bestValue > secondValue)
+		// 	return best.getMove();
+		// return secondBest.getMove();
 	}
 
+	private int calculateBlankTiles(int[][] state){
+		int overall = 0;
+		for(int i = 0; i<4; i++){
+			for(int j = 0; j<4; j++){
+				if(state[i][j] == 0)
+					overall++; 
+			}
+		}
+		return overall;
+	}
+
+	private int calculateUnique(int[][] state){
+		int overall = 0;
+		for(int i = 0; i<4; i++){
+			for(int j = 0; j<4; j++){
+				overall += isUnique(state, state[i][j]);
+			}
+		}
+		return overall;
+	}
+
+	private int calculateGradient(int[][] state){
+		int overall = 0;
+		int previous = 0;
+		for(int i = 0; i<4; i++){
+			int increasing = 0;
+			int decreasing = 0;
+			for(int j = 0; j<4; j++){
+				if(state[i][j] == 0 || state[i][j] == previous)
+					continue;
+				if(j == 0)
+					previous = state[i][j];
+				else{
+					if( previous == state[i][j] * 2 )
+						increasing++;
+					else if(previous == state[i][j]/2) {
+						decreasing++;
+					}
+						
+					previous = state[i][j];
+				}
+			}
+			overall += Math.abs(increasing - decreasing);
+		}
+		for(int i = 0; i<4; i++){
+			int increasing = 0;
+			int decreasing = 0;
+			for(int j = 0; j<4; j++){
+				if(state[j][i] == 0 || state[j][i] == previous)
+					continue;
+				if(j == 0)
+					previous = state[j][i];
+				else{
+					if( previous == state[j][i]*2 )
+						increasing++;
+					else if ( previous == state[j][i]/2 ) {
+						decreasing++;
+					}
+						
+					previous = state[j][i];
+				}
+			}
+			overall += Math.abs(increasing - decreasing);
+		}
+		return overall;
+	}
 
 	private int calculateValue(simpleData state){
 		ArrayList<positionValue> highs = getHighest(state.getState(), 5);
@@ -79,7 +183,7 @@ public class minimax {
 			value += valueOf(getBelow(state.getState(), temp.getX(), temp.getY()), temp.getValue());
 			value += valueOf(getAfter(state.getState(), temp.getX(), temp.getY()), temp.getValue());
 			value += valueOf(getBefore(state.getState(), temp.getX(), temp.getY()), temp.getValue());
-			value += isUnique(state.getState(), temp.getValue());
+			value += calculateBlankTiles(state.getState());
 		}
 		return value;
 	}
@@ -93,7 +197,7 @@ public class minimax {
 			}
 		}
 		if(times == 1)
-			return 5;
+			return 1;
 		return 0;
 	}
 
@@ -179,9 +283,12 @@ public class minimax {
 		int type = 0;
 		int col = 0;
 		int row = 0;
+		double overall = 0.0;
 		for(int i = 0; i<zeroes.size(); i++){
 			int current = getColumnValue(state, zeroes.get(i).x, zeroes.get(i).y, 2) + getRowValue(state, zeroes.get(i).x, zeroes.get(i).y, 2);
 			int temp = getColumnValue(state, zeroes.get(i).x, zeroes.get(i).y, 4) + getRowValue(state, zeroes.get(i).x, zeroes.get(i).y, 4);
+			overall += (current * .9);
+			overall += (temp *.1);
 			if(current > max || temp > max){
 				col = zeroes.get(i).x;
 				row = zeroes.get(i).y;
@@ -195,10 +302,10 @@ public class minimax {
 					
 			}
 		}
-		System.out.println("Opponent's optimal move at Row: " + col + " and Column: " + row + " with expected value of: " + max + " and of type: " + type + " State: " + state[col][row]);
+		//System.out.println("Opponent's optimal move at Row: " + col + " and Column: " + row + " with expected value of: " + overall + " and of type: " + type + " State: " + state[col][row]);
 		int[][] toReturn = copy(state);
 		toReturn[col][row] = type;
-		simpleData req = new simpleData(max, toReturn, move);
+		simpleData req = new simpleData((int)overall, toReturn, move);
 		return req;
 	}	
 
