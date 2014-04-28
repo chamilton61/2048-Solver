@@ -2,31 +2,46 @@ import java.util.ArrayList;
 
 
 public class HighestTile {
-	
-	/**
-	 * This doens't work correctly yet
-	 */
-	
+
 	ArrayList<String> moves;
+	int totalWins;
+	int totalLoses;
 	
 	public HighestTile() {
 		moves = new ArrayList<String>();
+		totalLoses = 0;
+		totalWins = 0;
+		
 		
 		moves.add("up");
 		moves.add("down");
 		moves.add("right");
 		moves.add("left");
 		
-		solve();
+		int timesToRunGame = 50;
+		int totalMovesForAllGames = 0;
+		int averageMoves = 0;
+		
+		for (int i = 0; i < timesToRunGame; i++) {
+			totalMovesForAllGames += solve();
+		}
+		
+		averageMoves = totalMovesForAllGames/timesToRunGame;
+		
+		
+		System.out.println("Total Wins: " + totalWins);
+		System.out.println("Total Loses: " + totalLoses);
+		System.out.println("Average Moves before Win or Loss: " + averageMoves);
+		
+		
 	}
 	
-	void solve() {
+	int solve() {
 
 		puzzle puz = new puzzle();
-		puzzle puzCopy = new puzzle();
 		puzzle tempPuzzle = new puzzle();
 
-		puz.printState(puz.getState());
+//		puz.printState(puz.getState());
 
 		String bestMove = "none";
 		int highestTileMovie;
@@ -35,41 +50,41 @@ public class HighestTile {
 
 		while (!puz.checkWin()) {
 			totalMoves++;
-			System.out.println("++++++++++++++++++++++++++++++++");
+			
+			
 			highestTileMovie = 0;
-
-			// store the used state of the puzzle
-			puzCopy.setState(puz.getState());
-			
-			
-			for (String move : moves) {
+						for (String move : moves) {
 				// store the temp state for each try
-				tempPuzzle.setState(puzCopy.getState());
+				tempPuzzle.setState(puz.getState());
 				tempPuzzle.move(move);	
-//				System.out.println("biggest move: " + tempPuzzle.biggestTile());
-				if (biggestTile(tempPuzzle.getState()) > highestTileMovie) {
-					highestTileMovie = biggestTile(tempPuzzle.getState());
+				if (biggestTiles(tempPuzzle.getState()) > highestTileMovie) {
+					highestTileMovie = biggestTiles(tempPuzzle.getState());
 					bestMove = move;
 				}
 			}
 			
 			puz.move(bestMove);
-			puzCopy.setState(puz.getState());
-			System.out.println("Moving " + bestMove);
-			puz.printState(puz.getState());
+//			System.out.println("Moving " + bestMove);
+//			puz.printState(puz.getState());
 			
 			if (puz.checkLose()) {
 				System.out.println("Game Lost in " + totalMoves + " " + "moves" );
-				break;
+//				puz.printState(puz.getState());
+				totalLoses++;
+				return totalMoves;
 			}
 		}
 		if (puz.checkWin()) {
 			System.out.println("Game Won in " + totalMoves + " " + "moves" );
+//			puz.printState(puz.getState());
+			totalWins++;
+			return totalMoves;
 		}
+		return 0;
 		
 	}
 	
-	public int biggestTile(int[][] state){
+	public int biggestTiles(int[][] state){
 		int sum = 0;
 		for (int i = 0; i < 4; i++){
 			for (int j = 0; j < 4; j++){
@@ -78,5 +93,6 @@ public class HighestTile {
 		}
 		return sum;
 	}
+	
 
 }
